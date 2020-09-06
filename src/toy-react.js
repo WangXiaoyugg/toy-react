@@ -6,12 +6,24 @@ class ElementWrapper {
     this.root.setAttribute(key, value)
   }
   appendChild(component) {
-    this.root.appendChild(component.root)
+    let range = document.createRange()
+    range.setStart(this.root, this.root.childNodes.length)
+    range.setEnd(this.root, this.root.childNodes.length);
+    component._renderToDOM(range)
+  }
+  _renderToDOM(range) {
+    range.deleteContents()
+    range.insertNode(this.root)
   }
 }
 class TextWrapper {
   constructor(content) {
     this.root = document.createTextNode(content)
+  }
+
+  _renderToDOM(range) {
+    range.deleteContents()
+    range.insertNode(this.root)
   }
 }
 
@@ -27,12 +39,12 @@ export class Component {
   appendChild(component) {
     this.children.push(component)
   }
-  get root() {
-    if (!this._root) {
-      this._root = this.render().root
-    }
-    return this._root;
+
+  _renderToDOM(range) {
+    this.render()._renderToDOM(range)
   }
+
+
 }
 
 
@@ -65,5 +77,10 @@ export function createElement(type, attrs, ...children) {
   return el;
 }
 export function render(component, parentElement) {
-  parentElement.appendChild(component.root)
+  let range = document.createRange()
+  range.setStart(parentElement, 0)
+  range.setEnd(parentElement, parentElement.childNodes.length);
+  range.deleteContents()
+
+  component._renderToDOM(range)
 } 
