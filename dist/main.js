@@ -93,7 +93,7 @@
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-eval("var div = createElement(\"div\", null, \"123\");\n\n//# sourceURL=webpack:///./src/main.js?");
+eval("function createElement(tag, attrs) {\n  var el = document.createElement(tag);\n\n  for (var p in attrs) {\n    el.setAttribute(p, attrs[p]);\n  }\n\n  for (var _len = arguments.length, children = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {\n    children[_key - 2] = arguments[_key];\n  }\n\n  for (var _i = 0, _children = children; _i < _children.length; _i++) {\n    var child = _children[_i];\n\n    if (typeof child === 'string') {\n      child = document.createTextNode(child);\n    }\n\n    el.appendChild(child);\n  }\n\n  return el;\n}\n\ndocument.body.appendChild(createElement(\"div\", {\n  id: \"a\",\n  \"class\": \"c\"\n}, createElement(\"div\", null, \"1\"), createElement(\"div\", null, \"2\"), createElement(\"div\", null, \"3\")));\n\n//# sourceURL=webpack:///./src/main.js?");
 
 /***/ })
 
