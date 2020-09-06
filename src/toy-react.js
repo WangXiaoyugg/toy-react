@@ -15,6 +15,9 @@ export class Component {
   get vdom() {
     return this.render().vdom
   }
+  get vchildren() {
+    return this.children.map(child => child.vdom)
+  }
 
   _renderToDOM(range) {
     this._range = range
@@ -78,8 +81,29 @@ class ElementWrapper extends Component {
   //   component._renderToDOM(range)
   // }
   _renderToDOM(range) {
-    range.deleteContents()
-    range.insertNode(this.root)
+    let root = document.createElement(this.type)
+
+    for (let name in this.props) {
+      let value = this.props[name]
+      if (name.match(/^on([\s\S]+)$/)) {
+        root.addEventListener(RegExp.$1.replace(/^[\s\S]/, c => c.toLocaleLowerCase()), value)
+      } else {
+        if (name === 'className') {
+          root.setAttribute('class', value)
+        } else {
+          root.setAttribute(name, value)
+        }
+      }
+    }
+
+    for (let child of this.children) {
+      let childRange = document.createRange()
+      childRange.setStart(root, root.childNodes.length)
+      childRange.setEnd(root, root.childNodes.length);
+      child._renderToDOM(childRange)
+    }
+
+    range.insertNode(root)
   }
 
   get vdom() {
@@ -95,13 +119,11 @@ class TextWrapper extends Component {
     super()
     this.root = document.createTextNode(content)
     this.content = content
+    this.type = '#text'
   }
 
   get vdom() {
-    return {
-      type: '#text',
-      content: this.content
-    }
+    return this;
   }
 
   _renderToDOM(range) {
