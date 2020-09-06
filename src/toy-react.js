@@ -5,8 +5,14 @@ class ElementWrapper {
   setAttribute(key, value) {
     if (key.match(/^on([\s\S]+)$/)) {
       this.root.addEventListener(RegExp.$1.replace(/^[\s\S]/, c => c.toLocaleLowerCase()), value)
+    } else {
+      if (key === 'className') {
+        this.root.setAttribute('class', value)
+      } else {
+        this.root.setAttribute(key, value)
+      }
     }
-    this.root.setAttribute(key, value)
+
   }
   appendChild(component) {
     let range = document.createRange()
@@ -50,8 +56,17 @@ export class Component {
   }
 
   rerender() {
-    this._range.deleteContents()
-    this._renderToDOM(this._range)
+    let oldRange = this._range;
+
+    let range = document.createRange()
+    range.setStart(oldRange.startContainer, oldRange.startOffset)
+    range.setEnd(oldRange.startContainer, oldRange.startOffset)
+
+    this._renderToDOM(range)
+    oldRange.setStart(range.endContainer, range.endOffset)
+    oldRange.deleteContents()
+
+
   }
 
   setState(newState) {
@@ -92,6 +107,9 @@ export function createElement(type, attrs, ...children) {
     for (let child of children) {
       if (typeof child === 'string') {
         child = new TextWrapper(child)
+      }
+      if (child === null) {
+        continue
       }
       if ((typeof child === 'object') && (child instanceof Array)) {
         insertChildren(child)
